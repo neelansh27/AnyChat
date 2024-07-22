@@ -1,11 +1,13 @@
 import './App.css'
 import Chat from './components/Chat'
+import Landing from './components/Landing'
 function App() {
 
 
   return (
     <>
-  <Chat/>
+    <Landing/>
+  {/* <Chat/> */}
     </>
   )
 }

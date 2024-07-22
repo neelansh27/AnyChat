@@ -5,8 +5,11 @@ const path = require('path');
 const mongoose = require('mongoose')
 const cookieSession = require('cookie-session')
 const cors = require('cors');
+const uuid4 = require('uuid4');
 const createServer = require('http').createServer;
 const Server = require('socket.io').Server;
+const User = require('./schema/User')
+
 const app = express();
 app.use(cors({
   origin: 'http://localhost:5173'
@@ -36,21 +39,68 @@ app.use('/',require('./router/router.js'))
 
 // Socket IO 
 io.on("connection",(socket) => {
-  console.log("Working IO");
-  socket.on('msg',({msg})=>{
-    console.log(msg)
-    socket.emit('response',{
-      message: 'recieved message',
+
+  // Creating a user in database whenever a connection is made
+  socket.on("initialize",({name})=>{
+    new User({
+      name:name,
+      socketId: socket.id,
+      room: uuid4(),
+    }).save()
+  })
+
+  socket.on('msg',async ({message})=>{
+    const currUser = await User.findOne({socketId:socket.id});
+    if (!currUser){
+      console.log('reciever not found')
+    } else {
+      socket.to(currUser.room).emit('recieve-msg',{
+        name: currUser.name,
+        message: message,
+      })
+    }
+  })
+
+  socket.on('join',async ()=>{
+    const [currUser,pair] = await Promise.all([
+      User.findOne({socketId:socket.id}),
+      User.find({waiting: true}).sort({createdAt: -1})[0]
+    ])
+
+    if (pair===null){ 
+      // Creating a room for current user if no pair is available
+      socket.join(currUser.room);
+      currUser.waiting=true;
+      currUser.waitTime= new Date();
+    } else { 
+      // Join room if a user is found
+      socket.join(pair.room);
+      currUser.room=pair.room;
+      pair.waiting=false;
+      socket.to(pair.room).emit('user-joined',{message:`${currUser.name} has joined`});
+      socket.emit('user-joined',{message:`${pair.name} has joined`});
+      pair.save()
+    }
+    await currUser.save()
+  })
+
+  socket.on('disconnect',async ()=>{
+    // Removing user from database on disconnection
+    const deletedUser = await User.findOneAndDelete({socketId: socket.id});
+    console.log(deletedUser);
+    socket.to(deletedUser.room).emit('user-left',{
+      message: `${deletedUser.name} disconnected...`
     })
-  })
-  socket.on('disconnect',()=>{
-    console.log('A user disconnected!!');
+    console.log('someone disconnected!!');
   })
 })
-io.listen(process.env.IOPORT || 3333);
-app.listen(process.env.PORT || 3000,()=>{
-  console.log(`App running on http://localhost:${process.env.PORT || 3000}`)
-})
+
+io.listen(process.env.IOPORT || 3333,()=>{
+  console.log("we are connected");
+});
+// app.listen(process.env.PORT || 3000,()=>{
+//   console.log(`App running on http://localhost:${process.env.PORT || 3000}`)
+// })
 
 
 
