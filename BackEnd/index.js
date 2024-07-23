@@ -64,7 +64,7 @@ io.on("connection",(socket) => {
   socket.on('join',async ()=>{
     const [currUser,pair] = await Promise.all([
       User.findOne({socketId:socket.id}),
-      User.find({waiting: true}).sort({createdAt: -1})[0]
+      User.findOne({waiting: true}).sort({createdAt: -1})
     ])
 
     if (pair===null){ 

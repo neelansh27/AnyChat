@@ -1,6 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { socket } from '../socket'
-import { NameContext } from './Landing';
+import { NameContext } from '../context/nameContext'
+import { IoIosSend } from "react-icons/io";
+import { IoExitOutline } from "react-icons/io5";
+import '../css/Chat.css'
 
 const Chat = () => {
   const [msg, setMsg] = useState("");
@@ -13,18 +16,19 @@ const Chat = () => {
 
     socket.emit('initialize',{name:username})
     socket.emit('join')
-
+    console.log('sadsdassda')
     function userJoined({message}){
       setWaiting(false);
-      document.querySelector('.initial').textContent=message;
+      console.log(message)
+      addMessage('System',message)
     }
 
     function userLeft({message}){
-      document.querySelector('.initial').textContent=message;
+      addMessage('System',message)
     }
 
     function recieveMsg({name, message}){
-      addMessage(name,message);
+      addMessage(name,message,'recieved');
     }
     socket.on('user-joined',userJoined)
     socket.on('user-left',userLeft)
@@ -40,36 +44,56 @@ const Chat = () => {
       socket.disconnect()
     }
   },[])
+  function handlePress(e){
+    if (e.keyCode===13 && e.shiftKey){
+      // Prevented enter key behavior
+      e.preventDefault();
+      handleSend();
+    }
+  }
   function handleChange(e){
     setMsg(e.target.value);
   }
   function handleSend(){
     if (msg.trim().length === 0) return;
-    addMessage(username,msg);
+    addMessage(username,msg,'');
     socket.emit('msg',{message:msg})
     setMsg("");
   }
-  function addMessage(name,message){
+  function addMessage(name,message,spclClass=''){
     const child = document.createElement('li');
-    console.log(message)
-    child.textContent=`${name}:${message}`
+    const sender = document.createElement('div');
+    const content =  document.createElement('div');
+    child.classList.add('message');
+    if (spclClass) child.classList.add(spclClass);
+    sender.textContent=name;
+    content.textContent=message;
+    child.appendChild(sender);
+    child.appendChild(content);
     msgList.current.appendChild(child)
+    const list = document.querySelector('.message-list')
+    list.scrollTop=list.scrollHeight;
   }
   return (
     <>
-    <h3>Your name: {username} </h3>
+    {/* <h3>Your name: {username} </h3> */}
+    {waiting && <h3>Waiting for someone to join...</h3>}
+    <div className='control'>
+    <button id='leave' onClick={()=>setChat(false)}>Leave <IoExitOutline/></button>
+    </div>
     <div className='message-box'>
+    <div className='out-container'>
     <div className="message-list">
       <ul ref={msgList} className="messages">
       </ul>
     </div>
-    <div className='initial'></div>
-    {waiting && <div>Waiting for someone to join...</div>}
-      <input type="text" onChange={handleChange} value={msg}/>
-      <button onClick={handleSend}> send </button>
+</div>
     </div>
     <div>
-    <button onClick={()=>setChat(false)}>Leave Chat</button>
+    <div className='input-box'>
+      <textarea placeholder='Use shift enter to send' type="text" id='message'  onKeyDown={handlePress} onChange={handleChange} value={msg}></textarea>
+      <button onClick={handleSend} id="send" disabled={waiting}><IoIosSend /></button>
+    </div>
     </div>
     </>
   )
