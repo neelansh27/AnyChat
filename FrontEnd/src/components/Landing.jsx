@@ -25,9 +25,8 @@ const Landing = () => {
     }
   }
   return (
-    <div className="chat-wrapper">
       <div className="chat-container">
-        <div>
+        <div className="header">
           <div className="mask">
             <LuVenetianMask />
           </div>
@@ -62,7 +61,6 @@ const Landing = () => {
         <NameContext.Provider value={{ username, setChat }}>
           {chat && <Chat />}
         </NameContext.Provider>
-      </div>
     </div>
   );
 };

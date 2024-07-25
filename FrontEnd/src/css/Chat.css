@@ -1,22 +1,42 @@
+.cont {
+  display: flex;
+  flex-direction: column;
+  height: 75%;
+  overflow: scroll;
+}
+.message-box {
+  flex-grow: 1;
+  background: black;
+}
 .input-box{
-  position: absolute;
-  bottom: 0px;
+  /* position: absolute; */
+  /* bottom: 0px; */
   width: 100vw;
   display: flex;
-  height: 10vh;
   gap: 0.4rem;
   padding: 0px 10px;
   /* outline: 2px solid white; */
 }
 
+.message-list,.cont, #message {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+.message-list::-webkit-scrollbar,.cont::-webkit-scrollbar,#message::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+}
 #message, #send{
   height: 6vh;
+  min-height: 2.4rem;
   background: none;
   outline: none;
   color: white;
+  margin-bottom: 10px;
 }
 #message {
   flex-grow: 1;
+  font-size: 1rem;
+  resize: none;
   border: 2px solid white;
   border-radius: 999px;
   padding: 0.5rem 1rem;
@@ -39,12 +59,8 @@
  background: white;
  color: black;
 }
-.out-container{
-  margin-bottom: 10vh;
-}
 .message-list{
   overflow-y: scroll;
-  height: 60vh;
   padding: 0px 0.7rem;
 }
 .messages {
@@ -77,11 +93,11 @@
   color: #333;
   white-space: pre-line;
 }
-@media (max-width:760px){
-  .input-box{
-    height: 7vh;
-  }
-}
+/* @media (max-width:760px){ */
+/*   .input-box{ */
+/*     height: 7vh; */
+/*   } */
+/* } */
 
 .control{
   display: flex;
