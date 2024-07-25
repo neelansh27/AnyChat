@@ -16,7 +16,7 @@ app.use(cors({
 }))
 const httpServer = createServer(app);
 const io = new Server(httpServer,{
-  cors:  'http://localhost:5173'
+  cors:  process.env.URL || 'http://localhost:5173'
 });
 
 app.set('view-engine','ejs')
