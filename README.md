@@ -41,6 +41,9 @@ npm install
 VITE_BACK_URL=<Backend url>
 ```
 
+> [!NOTE]  
+> If you are running Frontend on a port other than 5173 then make sure to update CORS configuration in [index.js](BackEnd/index.js#L17)
+
 ## Start servers
 
 - BackEnd: `npm start`
