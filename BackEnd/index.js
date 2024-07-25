@@ -11,12 +11,10 @@ const Server = require('socket.io').Server;
 const User = require('./schema/User')
 
 const app = express();
-app.use(cors({
-  origin: 'http://localhost:5173'
-}))
+app.use(cors())
 const httpServer = createServer(app);
 const io = new Server(httpServer,{
-  cors:  process.env.URL || 'http://localhost:5173'
+  cors:  'http://localhost:5173'
 });
 
 app.set('view-engine','ejs')
@@ -88,19 +86,17 @@ io.on("connection",(socket) => {
     // Removing user from database on disconnection
     const deletedUser = await User.findOneAndDelete({socketId: socket.id});
     console.log(deletedUser);
-    socket.to(deletedUser.room).emit('user-left',{
-      message: `${deletedUser.name} disconnected...`
-    })
-    console.log('someone disconnected!!');
+    if (deletedUser){
+      socket.to(deletedUser.room).emit('user-left',{
+        message: `${deletedUser.name} disconnected...`
+      })
+    }
   })
 })
 
-io.listen(process.env.PORT || 3333,()=>{
-  console.log("we are connected");
+httpServer.listen(process.env.PORT || 3333,()=>{
+  console.log(`App running on ${process.env.PORT || 3000}`);
 });
-// app.listen(process.env.PORT || 3000,()=>{
-//   console.log(`App running on ${process.env.PORT || 3000}`)
-// })
 
 
 
