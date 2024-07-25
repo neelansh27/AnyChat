@@ -33,6 +33,7 @@ const Chat = () => {
     socket.on("user-joined", userJoined);
     socket.on("user-left", userLeft);
     socket.on("recieve-msg", recieveMsg);
+    console.log(import.meta.env.VITE_BACK_URL)
     return () => {
       // we mention method name with socket.off because it will
       // remove only those event listener with the given method
