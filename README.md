@@ -23,13 +23,14 @@ npm install
 
 ```
 PORT=<Port>
-DB_URI=<MongoDB url>
+DB_URI=<MongoDB connection string>
 SECRET=<Any random string OR hash code>
+URL=<Frontend URL, no need to add if running on localhost:5173>
 ```
 
 ###  Frontend
 
-- Setup up Backend
+- Setup up Frontend
 
 ```
 cd Frontend 
